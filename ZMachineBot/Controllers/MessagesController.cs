@@ -22,7 +22,7 @@ namespace ZMachineBot.Controllers
 			BotIO io = new BotIO();
 			ZMachine zMachine = new ZMachine(io);
 
-			string path = HostingEnvironment.MapPath("~/Games/zork1.dat");
+			string path = HostingEnvironment.MapPath("~/Games/zork2.dat");
 			FileStream fs = File.OpenRead(path);
 			zMachine.LoadFile(fs);
 
