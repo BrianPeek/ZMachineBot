@@ -128,9 +128,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
-    <Content Include="Games\ZORK1.DAT" />
-    <Content Include="Games\ZORK2.DAT" />
-    <Content Include="Games\ZORK3.DAT" />
     <None Include="Properties\PublishProfiles\ZMachineBot - Web Deploy.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
