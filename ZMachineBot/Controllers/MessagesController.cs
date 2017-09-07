@@ -19,20 +19,34 @@ namespace ZMachineBot.Controllers
 		/// </summary>
 		public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
 		{
+			switch(activity.Text)
+			{
+				case "/reset":
+					activity.GetStateClient().BotState.DeleteStateForUser(activity.ChannelId, activity.From.Id);
+					break;
+			}
+
 			BotIO io = new BotIO();
 			ZMachine zMachine = new ZMachine(io);
 
-			string path = HostingEnvironment.MapPath("~/Games/zork1.dat");
+			string path = HostingEnvironment.MapPath("~/Games/cutthroa.dat");
 			FileStream fs = File.OpenRead(path);
 			zMachine.LoadFile(fs);
 
 			BotData data = activity.GetStateClient().BotState.GetUserData(activity.ChannelId, activity.From.Id);
 			byte[] state = data.GetProperty<byte[]>("ZState");
-			if(state != null)
+			try
 			{
-				using (MemoryStream ms = new MemoryStream(state))
-					zMachine.RestoreState(ms);
-				zMachine.FinishRead(activity.Text);
+				if(state != null)
+				{
+					using (MemoryStream ms = new MemoryStream(state))
+						zMachine.RestoreState(ms);
+					zMachine.FinishRead(activity.Text);
+				}
+			}
+			catch(Exception)
+			{
+				activity.GetStateClient().BotState.DeleteStateForUser(activity.ChannelId, activity.From.Id);
 			}
 
 			zMachine.Run(true);
@@ -42,6 +56,7 @@ namespace ZMachineBot.Controllers
 				s.CopyTo(ms);
 				data.SetProperty("ZState", ms.ToArray());
 			}
+
 			activity.GetStateClient().BotState.SetUserData(activity.ChannelId, activity.From.Id, data);
 
 			if (activity.Type == ActivityTypes.Message)
@@ -60,29 +75,30 @@ namespace ZMachineBot.Controllers
 			return response;
 		}
 
-		private Activity HandleSystemMessage(Activity message)
+		private Activity HandleSystemMessage(Activity activity)
 		{
-			if (message.Type == ActivityTypes.DeleteUserData)
+			if (activity.Type == ActivityTypes.DeleteUserData)
 			{
 				// Implement user deletion here
 				// If we handle user deletion, return a real message
+				activity.GetStateClient().BotState.DeleteStateForUser(activity.ChannelId, activity.From.Id);
 			}
-			else if (message.Type == ActivityTypes.ConversationUpdate)
+			else if (activity.Type == ActivityTypes.ConversationUpdate)
 			{
 				// Handle conversation state changes, like members being added and removed
 				// Use Activity.MembersAdded and Activity.MembersRemoved and Activity.Action for info
 				// Not available in all channels
 			}
-			else if (message.Type == ActivityTypes.ContactRelationUpdate)
+			else if (activity.Type == ActivityTypes.ContactRelationUpdate)
 			{
 				// Handle add/remove from contact lists
 				// Activity.From + Activity.Action represent what happened
 			}
-			else if (message.Type == ActivityTypes.Typing)
+			else if (activity.Type == ActivityTypes.Typing)
 			{
 				// Handle knowing tha the user is typing
 			}
-			else if (message.Type == ActivityTypes.Ping)
+			else if (activity.Type == ActivityTypes.Ping)
 			{
 			}
 
