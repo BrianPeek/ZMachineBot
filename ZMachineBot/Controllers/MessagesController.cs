@@ -28,8 +28,8 @@ namespace ZMachineBot.Controllers
 
 			BotIO io = new BotIO();
 			ZMachine zMachine = new ZMachine(io);
-
-			string path = HostingEnvironment.MapPath("~/Games/cutthroa.dat");
+			string gameFile = Environment.GetEnvironmentVariable("GameFile");
+			string path = HostingEnvironment.MapPath($"~/Games/{gameFile}");
 			FileStream fs = File.OpenRead(path);
 			zMachine.LoadFile(fs);
 
